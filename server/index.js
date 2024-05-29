@@ -22,7 +22,6 @@ io.on('connection',(socket)=>{
         console.log("joined room ",data);
     })
     socket.on("cursor_moved",(data)=>{
-        console.log(data);
         socket.to(data.id).emit("other",data);
     })
 })
