@@ -1,10 +1,16 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom'
+
+
 const Board = () => {
-    const id = useParams();
-    console.log(id.id);
+    useEffect(()=>{
+      
+    },[])
+    const {id} = useParams();
+    console.log(id);
     
   return (
-    <div>Board {id.id}</div>
+    <div>Board {id}</div>
   )
 }
 
