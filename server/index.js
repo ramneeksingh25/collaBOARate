@@ -19,9 +19,11 @@ io.on('connection',(socket)=>{
     console.log("User Connected ",socket.id);
     socket.on('join_room',(data)=>{
         socket.join(data)
+        console.log("joined room ",data);
     })
-    socket.on("board_change",(data)=>{
-        socket.to(data.room).emit("draw",data)
+    socket.on("cursor_moved",(data)=>{
+        console.log(data);
+        socket.to(data.id).emit("other",data);
     })
 })
 
