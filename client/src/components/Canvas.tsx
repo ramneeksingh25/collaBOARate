@@ -1,28 +1,55 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Stage, Layer, Line } from "react-konva";
+import { Stage, Layer, Line, StageProps } from "react-konva";
 import { io } from "socket.io-client";
 import OtherCursor from "./OtherCursor";
 import { userContext } from "../contexts/userContext";
 import { Form } from "react-bootstrap";
+import jsPDF from "jspdf";
 const socket = io("http://localhost:2000");
 type LineProps = {
-	points: [number, number],
-	color: string,
-	width: number,
+	points: [number, number];
+	color: string;
+	width: number;
 };
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
+	const stageRef = useRef<StageProps>(null);
+	const [undoStack, setUndoStack] = useState([]);
+	const [redoStack, setRedoStack] = useState([]);
 	const [cursor, setCursor] = useState({});
 	const [other, setOther] = useState({});
 	const [lines, setLines] = useState<LineProps[]>([]);
 	const [color, setColor] = useState("#000000");
 	const [width, setWidth] = useState(2);
 	const isDrawing = useRef(false);
+	const saveAsImage = () => {
+		const uri = stageRef.current.toDataURL();
+		const link = document.createElement("a");
+		link.download = "whiteboard.png";
+		link.href = uri;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
+
+	const saveAsPDF = () => {
+		const uri = stageRef.current.toDataURL();
+		const pdf = new jsPDF();
+		pdf.addImage(
+			uri,
+			"PNG",
+			0,
+			0,
+			pdf.internal.pageSize.getWidth(),
+			pdf.internal.pageSize.getHeight()
+		);
+		pdf.save("whiteboard.pdf");
+	};
 	const handleMouseDown = (e) => {
 		isDrawing.current = true;
 		const pos = e.target?.getStage().getPointerPosition();
-		setLines([...lines, { points: [pos.x, pos.y], color,width }]);
+		setLines([...lines, { points: [pos.x, pos.y], color, width }]);
 	};
 	const handleMouseMove = (e) => {
 		if (!isDrawing.current) return;
@@ -39,10 +66,18 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	};
 
 	const handleUndo = () => {
-		console.log("UNDO");
+		if (undoStack.length > 0) {
+			setRedoStack(redoStack.concat(lines));
+			setUndoStack(undoStack.slice(0, undoStack.length - 1));
+			setLines(undoStack.slice(0, undoStack.length - 1));
+			console.log("wow");
+		}
 	};
 	const handleRedo = () => {
-		console.log("REDO");
+		if (redoStack.length > 0) {
+			setUndoStack([...undoStack, redoStack.pop()]);
+			setLines(redoStack);
+		}
 	};
 	useEffect(() => {
 		socket.emit("join_room", id);
@@ -63,6 +98,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	}, []);
 	useEffect(() => {
 		socket.emit("drawing", lines);
+		setUndoStack(lines);
 	}, [lines]);
 	return (
 		<div
@@ -85,7 +121,9 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				style={{ border: "1px solid" }}
 				onMouseDown={handleMouseDown}
 				onMousemove={handleMouseMove}
-				onMouseup={handleMouseUp}>
+				onMouseup={handleMouseUp}
+				ref={stageRef}
+				>
 				<Layer>
 					{lines.map((line, i) => (
 						<Line
@@ -120,11 +158,14 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 						setColor(e.target.value);
 					}}
 				/>
-				<Form.Range onChange={(e)=>{
-					setWidth(parseInt(e.target.value));
-				}}
-				style={{ width: "100px", color: "black" }}
+				<Form.Range
+					onChange={(e) => {
+						setWidth(parseInt(e.target.value));
+					}}
+					style={{ width: "100px", color: "black" }}
 				/>
+				<button onClick={saveAsImage}>Save as Image</button>
+        <button onClick={saveAsPDF}>Save as PDF</button>
 			</div>
 		</div>
 	);
