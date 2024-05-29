@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
-import io from 'socket.io-client';
-
-const socket = io("http://localhost:2000")
 
 const SessionCard= ({func}:{func:string}) => {
   const navigate = useNavigate();
@@ -18,13 +15,11 @@ const SessionCard= ({func}:{func:string}) => {
   const createRoom = ()=>{
       const newID = createRandomID();
       if (newID !== "") {
-        socket.emit("join_room",newID)
         navigate(`/board/${newID}`)
       }
   }
   const joinRoom = ()=>{
     if (ID !== "") {
-      socket.emit("join_room",ID)
       navigate(`/board/${ID}`)
     }
   }
