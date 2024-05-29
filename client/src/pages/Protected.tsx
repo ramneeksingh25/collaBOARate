@@ -4,7 +4,7 @@ import SessionCard from "../components/SessionCard";
 const Protected = () => {  
 	return (
 		<Container
-			fluid
+			// fluid
 			className="d-flex justify-content-center align-items-center"
 			style={{ height: "80vh" }}>
 			<SessionCard func="Join" />
