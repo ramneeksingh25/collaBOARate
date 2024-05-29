@@ -1,13 +1,17 @@
+import { KeycloakTokenParsed } from 'keycloak-js';
 import { Button } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 
-function NavBar({user,logout}) {
+interface NavBarProps {
+  user: KeycloakTokenParsed|undefined;
+  logout: () => void;
+}
+function NavBar({user,logout}:NavBarProps) {
   return (
-    <Navbar className="bg-dark-subtle border border-bottom-4 border-black ">
+    <Navbar className="bg-dark-subtle border border-bottom-4 border-black">
       <Container>
         <Navbar.Brand href="/" className=' fw-bolder fs-2 border border-dark border-3 px-3 rounded-5 bg-white'>CollaBOARate</Navbar.Brand>
-        <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
             <span className='text-decoration-underline'>{user?.email}</span>

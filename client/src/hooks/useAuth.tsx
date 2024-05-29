@@ -4,7 +4,6 @@ import Keycloak from 'keycloak-js';
 const useAuth = () => {
     const [isLogin, setLogin] = useState(false);
     const isRun = useRef(false);
-    const [token, setToken] = useState<string | undefined>("");
     const [user, setUser] = useState<Keycloak.KeycloakTokenParsed | undefined>(undefined);
     const keycloakRef = useRef<Keycloak.KeycloakInstance | null>(null);
 
@@ -24,7 +23,6 @@ const useAuth = () => {
         client.init({ onLoad: "login-required" }).then((authenticated: boolean) => {
             setLogin(authenticated);
             if (authenticated) {
-                setToken(client.token);
                 setUser(client.tokenParsed);
             } else {
                 console.error("User is not authenticated");
@@ -43,7 +41,7 @@ const useAuth = () => {
         }
     };
 
-    return [isLogin, token, user, logout] as const;
+    return [isLogin, user, logout] as const;
 };
 
 export default useAuth;

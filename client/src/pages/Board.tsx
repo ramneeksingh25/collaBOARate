@@ -10,7 +10,7 @@ const Board = () => {
     console.log(id);
     
   return (
-    <div>Board {id}</div>
+    <div className='bg-danger position-fixed'>Board {id}</div>
   )
 }
 
