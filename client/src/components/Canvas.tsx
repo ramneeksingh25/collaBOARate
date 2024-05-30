@@ -10,14 +10,12 @@ import { KonvaEventObject } from "konva/lib/Node";
 const socket = io("http://localhost:2000");
 
 type LineProps = {
-	points: number[];
-	color: string;
-	width: number;
-	id: string | undefined;
+	points: number[],
+	color: string,
+	width: number,
+	id: string | undefined,
 };
-
 type KonvaMouseEvent = KonvaEventObject<MouseEvent>;
-
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
@@ -30,7 +28,9 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	const isDrawing = useRef(false);
 	const [stageWidth, setStageWidth] = useState<number>(100);
 	const [stageHeight, setStageHeight] = useState<number>(100);
-	//to set board dimesions
+	const [otherCursor,setOtherCursor] = useState({x:0, y:0,id:id,user:userData?.name,color:color,width:width,visible:false});
+
+	//Will run to set board dimesions
 	useEffect(() => {
 		const updateStageSize = () => {
 			if (boardRef.current) {
@@ -39,19 +39,30 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				setStageHeight(offsetHeight * 0.94);
 			}
 		};
-
 		updateStageSize();
 		window.addEventListener("resize", updateStageSize);
-
 		return () => {
 			window.removeEventListener("resize", updateStageSize);
 		};
-	}, []);
-	useEffect(()=>{
-		console.log(userData?.name+ " joined room " + id);
+	}, [stageHeight, stageWidth]);
 
-		
-	},[id])
+	//Will run when Joining Room
+	useEffect(() => {
+		socket.emit("join", { id: id, user: userData?.name });
+	}, [id, userData?.name]);
+
+	//to show real-time drawing and cursor
+	useEffect(() => {
+		socket.on("drawings",(data)=>{
+			setOtherCursor(data[0]);
+			const newLines = data[1];
+			console.log(newLines);
+			setLines([...lines,newLines]);
+			setUndoStack([...undoStack, [...lines, newLines]]);
+			setRedoStack([]);
+		})
+	}, [lines,undoStack])
+
 	const saveAsImage = () => {
 		const uri = stageRef.current?.toDataURL();
 		const link = document.createElement("a");
@@ -86,7 +97,6 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			setRedoStack([]);
 		}
 	};
-
 	const handleMouseMove = (e: KonvaMouseEvent) => {
 		if (!isDrawing.current) return;
 		const stage = e.target?.getStage();
@@ -97,15 +107,18 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				...lastLine,
 				points: lastLine.points.concat([point.x, point.y]),
 			};
+			socket.emit("drawing",[{id:id, x: e.evt.x, y: e.evt.y, user:userData?.name,color:color,width:width,visible:true},newLine])
 			setLines(lines.slice(0, -1).concat(newLine));
 			setUndoStack(
 				undoStack.slice(0, -1).concat([lines.slice(0, -1).concat(newLine)])
 			);
 		}
+
 	};
 
 	const handleMouseUp = () => {
 		isDrawing.current = false;
+		setOtherCursor({...otherCursor,visible: false});
 	};
 
 	const handleUndo = () => {
@@ -142,7 +155,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				height: "93%",
 				width: "98%",
 			}}>
-			{/* <OtherCursor cursor={other} />*/}
+			{otherCursor.visible&&<OtherCursor cursor={otherCursor} />}
 			<div
 				style={{
 					width: "100%",
@@ -152,7 +165,6 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 					backgroundColor: "lightgray",
 					justifyContent: "center",
 					gap: "3vw",
-					
 				}}>
 				<Button
 					variant="dark"
@@ -201,8 +213,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				onMouseDown={handleMouseDown}
 				onMousemove={handleMouseMove}
 				onMouseup={handleMouseUp}
-				ref={stageRef}
-				>
+				ref={stageRef}>
 				<Layer>
 					{lines.map((line, i) => (
 						<Line
@@ -220,5 +231,4 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 		</div>
 	);
 };
-
 export default Canvas;

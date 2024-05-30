@@ -11,7 +11,9 @@ function NavBar({user,logout}:NavBarProps) {
   return (
     <Navbar className="bg-dark-subtle border border-bottom-4 border-black">
       <Container>
-        <Navbar.Brand href="/" className=' fw-bolder fs-2 border border-dark border-3 px-3 rounded-5 bg-white'>CollaBOARate</Navbar.Brand>
+        <Navbar.Brand href="/" className=' fw-bolder fs-2 px-3 border border-dark border-3 rounded-5 bg-white'>
+        <img src='./public/logo.png' width={100}/> collaBOARate
+        </Navbar.Brand>
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
             <span className='text-decoration-underline'>{user?.email}</span>

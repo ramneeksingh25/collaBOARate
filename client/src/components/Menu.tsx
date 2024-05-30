@@ -7,7 +7,6 @@ const Menu = ({ id }: { id: string | undefined }) => {
           await navigator.clipboard.writeText(id||"Copy Again!");
           setCopySuccess('success');
           setTimeout(() => {
-            console.log("this is the second message");
             setCopySuccess("");
           }, 3000);
       };
