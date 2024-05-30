@@ -1,24 +1,26 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Stage, Layer, Line, StageProps } from "react-konva";
+import { Stage, Layer, Line, StageProps}  from "react-konva";
 import { io } from "socket.io-client";
 import OtherCursor from "./OtherCursor";
 import { userContext } from "../contexts/userContext";
-import { Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import jsPDF from "jspdf";
+import { KonvaEventObject } from "konva/lib/Node";
 const socket = io("http://localhost:2000");
 type LineProps = {
-	points: [number, number],
-	color: string,
-	width: number,
-	id:string|undefined
+	points: [number, number];
+	color: string;
+	width: number;
+	id: string | undefined;
 };
+type KonvaMouseEvent = KonvaEventObject<MouseEvent>
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
-	const stageRef = useRef <StageProps>(null);
+	const stageRef = useRef<StageProps>(null);
 	const [undoStack, setUndoStack] = useState<LineProps[]>([]);
 	const [redoStack, setRedoStack] = useState<LineProps[]>([]);
-	const [other, setOther] = useState({});
+	// const [other, setOther] = useState({});
 	const [lines, setLines] = useState<LineProps[]>([]);
 	const [color, setColor] = useState<string>("#000000");
 	const [width, setWidth] = useState<number>(2);
@@ -46,17 +48,19 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 		);
 		pdf.save(`board_${id}.pdf`);
 	};
-	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+	const handleMouseDown = (e : KonvaMouseEvent ) => {
 		isDrawing.current = true;
 		const pos = e.target?.getStage().getPointerPosition();
-		setLines([...lines, { points: [pos.x, pos.y], color, width,id }]);
+		setLines([...lines, { points: [pos.x, pos.y], color, width, id }]);
 	};
-	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+	const handleMouseMove = (e: KonvaMouseEvent ) => {
 		if (!isDrawing.current) return;
 		const stage = e.target?.getStage();
-		const point = stage.getPointerPosition();
+		const point = stage?.getPointerPosition();
 		const lastLine = lines[lines.length - 1];
-		lastLine.points = lastLine.points.concat([point.x, point.y])
+		lastLine.points = point ? lastLine.points.concat([point.x, point.y]): [1,1];
 		lines.splice(lines.length - 1, 1, lastLine);
 		setLines(lines.concat());
 	};
@@ -72,40 +76,13 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			setLines(undoStack.slice(0, undoStack.length - 1));
 		}
 	};
-	const handleRedo = ()=>{
-		console.log("Redo");
-	}
 
-	useEffect(()=>{
-		socket.emit("draw",lines)
-		socket.on("otherDraw", (data) => {
-			//Code for adding new lines from other person
-		});
-	},[lines]);
-	useEffect(()=>{
-		socket.emit("join_room", {id:id,lines:lines});
-		socket.on("joined", (data) => {
-			console.log("Other joined ",data);
-            setLines(data);
-        });
-	},[id])
-	useEffect(() => {
-		boardRef.current?.addEventListener("mousemove", (e: MouseEvent) => {
-			socket.emit("cursor_moved", {
-				x: e.x,
-				y: e.y,
-				id: id,
-				userData: userData?.name,
-				lines: lines
-			});
-		});
-	}, [id, userData?.name,lines]);
-	useEffect(() => {
-		
-		socket.on("other", (data) => {
-			setOther(data);
-		});
-	}, [other]);
+	const handleRedo = () => {
+		console.log("Redo");
+	};
+
+
+
 
 	return (
 		<div
@@ -117,7 +94,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				marginTop: "10vh",
 				marginLeft: "3vw",
 			}}>
-			<OtherCursor cursor={other} />
+
+			{/* <OtherCursor cursor={other} />*/}
 			<div style={{ position: "fixed" }}>
 				{/* {JSON.stringify(other)}
 				<h1>{JSON.stringify(cursor)}</h1> */}
@@ -129,8 +107,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				onMouseDown={handleMouseDown}
 				onMousemove={handleMouseMove}
 				onMouseup={handleMouseUp}
-				ref={stageRef}
-				>
+				ref={stageRef}>
 				<Layer>
 					{lines.map((line, i) => (
 						<Line
@@ -146,16 +123,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				</Layer>
 			</Stage>
 			<div style={{ display: "flex", gap: "100px" }}>
-				<button
-					onClick={handleUndo}
-				>
-					Undo
-				</button>
-				<button
-					onClick={handleRedo}
-				>
-					Redo
-				</button>
+				<Button variant="dark" onClick={handleUndo} >Undo</Button>
+				<Button variant="dark" onClick={handleRedo}>Redo</Button>
 				<input
 					type="color"
 					name="color"
@@ -169,8 +138,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 					}}
 					style={{ width: "100px", color: "black" }}
 				/>
-				<button onClick={saveAsImage}>Save as Image</button>
-        <button onClick={saveAsPDF}>Save as PDF</button>
+				<Button variant="dark" onClick={saveAsImage}>Save as Image</Button>
+				<Button variant="dark" onClick={saveAsPDF}>Save as PDF</Button>
 			</div>
 		</div>
 	);

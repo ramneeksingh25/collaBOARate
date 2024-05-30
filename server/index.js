@@ -18,18 +18,17 @@ const io = new Server(server,{
 io.on('connection',(socket)=>{
     var id = "";
     console.log("User Connected ",socket.id);
-    socket.on('join_room',(data)=>{
-        socket.join(data.id)
-        console.log("joined room ",data.id);
-        socket.to(data.id).emit("joined",data.lines)
-    })
-    socket.on("cursor_moved",(data)=>{
-        socket.to(data.id).emit("other",data);
-    })
-    socket.on("draw",(data)=>{
-        console.log("Draw");
-        socket.to(data[0]?data[0].id:id).emit("otherDraw",data);
-    })
+    // socket.on('join_room',(data)=>{
+    //     socket.join(data.id)
+    //     id = data.id
+    //     socket.to(data.id).emit("joined",data.lines)
+    // })
+    // socket.on("cursor_moved",(data)=>{
+    //     socket.to(data.id).emit("other",data);
+    // })
+    // socket.on("draw",(data)=>{
+    //     socket.to(id).emit("otherDraw",data);
+    // })
 })
 
 server.listen(2000,()=>{
