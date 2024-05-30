@@ -28,10 +28,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	const [color, setColor] = useState<string>("#000000");
 	const [width, setWidth] = useState<number>(2);
 	const isDrawing = useRef(false);
-	const [stageWidth, setStageWidth] = useState<number>(window.innerWidth / 1.5);
-	const [stageHeight, setStageHeight] = useState<number>(
-		window.innerHeight / 1.5
-	);
+	const [stageWidth, setStageWidth] = useState<number>(100);
+	const [stageHeight, setStageHeight] = useState<number>(100);
 	//to set board dimesions
 	useEffect(() => {
 		const updateStageSize = () => {
@@ -54,7 +52,6 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 
 		
 	},[id])
-
 	const saveAsImage = () => {
 		const uri = stageRef.current?.toDataURL();
 		const link = document.createElement("a");
@@ -155,6 +152,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 					backgroundColor: "lightgray",
 					justifyContent: "center",
 					gap: "3vw",
+					
 				}}>
 				<Button
 					variant="dark"
@@ -203,7 +201,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 				onMouseDown={handleMouseDown}
 				onMousemove={handleMouseMove}
 				onMouseup={handleMouseUp}
-				ref={stageRef}>
+				ref={stageRef}
+				>
 				<Layer>
 					{lines.map((line, i) => (
 						<Line
