@@ -1,7 +1,7 @@
 
 # collaBOARate
 
-A real-time collaborative whiteboard built using ReactJS, Socket.io, Bootstrap
+A real-time collaborative whiteboard built using ReactJS, Socket.io, Bootstrap, Konva
 
 
 ## Features
