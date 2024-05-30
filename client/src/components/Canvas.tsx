@@ -7,24 +7,24 @@ import { Form } from "react-bootstrap";
 import jsPDF from "jspdf";
 const socket = io("http://localhost:2000");
 type LineProps = {
-	points: [number, number];
-	color: string;
-	width: number;
+	points: [number, number],
+	color: string,
+	width: number,
+	id:string|undefined
 };
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
-	const stageRef = useRef<StageProps>(null);
-	const [undoStack, setUndoStack] = useState([]);
-	const [redoStack, setRedoStack] = useState([]);
-	const [cursor, setCursor] = useState({});
+	const stageRef = useRef <StageProps>(null);
+	const [undoStack, setUndoStack] = useState<LineProps[]>([]);
+	const [redoStack, setRedoStack] = useState<LineProps[]>([]);
 	const [other, setOther] = useState({});
 	const [lines, setLines] = useState<LineProps[]>([]);
-	const [color, setColor] = useState("#000000");
-	const [width, setWidth] = useState(2);
+	const [color, setColor] = useState<string>("#000000");
+	const [width, setWidth] = useState<number>(2);
 	const isDrawing = useRef(false);
 	const saveAsImage = () => {
-		const uri = stageRef.current.toDataURL();
+		const uri = stageRef.current?.toDataURL();
 		const link = document.createElement("a");
 		link.download = "whiteboard.png";
 		link.href = uri;
@@ -34,7 +34,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	};
 
 	const saveAsPDF = () => {
-		const uri = stageRef.current.toDataURL();
+		const uri = stageRef.current?.toDataURL();
 		const pdf = new jsPDF();
 		pdf.addImage(
 			uri,
@@ -44,19 +44,19 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			pdf.internal.pageSize.getWidth(),
 			pdf.internal.pageSize.getHeight()
 		);
-		pdf.save("whiteboard.pdf");
+		pdf.save(`board_${id}.pdf`);
 	};
-	const handleMouseDown = (e) => {
+	const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		isDrawing.current = true;
 		const pos = e.target?.getStage().getPointerPosition();
-		setLines([...lines, { points: [pos.x, pos.y], color, width }]);
+		setLines([...lines, { points: [pos.x, pos.y], color, width,id }]);
 	};
-	const handleMouseMove = (e) => {
+	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		if (!isDrawing.current) return;
 		const stage = e.target?.getStage();
 		const point = stage.getPointerPosition();
 		const lastLine = lines[lines.length - 1];
-		lastLine.points = lastLine.points.concat([point.x, point.y]);
+		lastLine.points = lastLine.points.concat([point.x, point.y])
 		lines.splice(lines.length - 1, 1, lastLine);
 		setLines(lines.concat());
 	};
@@ -70,36 +70,43 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			setRedoStack(redoStack.concat(lines));
 			setUndoStack(undoStack.slice(0, undoStack.length - 1));
 			setLines(undoStack.slice(0, undoStack.length - 1));
-			console.log("wow");
 		}
 	};
-	const handleRedo = () => {
-		if (redoStack.length > 0) {
-			setUndoStack([...undoStack, redoStack.pop()]);
-			setLines(redoStack);
-		}
-	};
+	const handleRedo = ()=>{
+		console.log("Redo");
+	}
+
+	useEffect(()=>{
+		socket.emit("draw",lines)
+		socket.on("otherDraw", (data) => {
+			//Code for adding new lines from other person
+		});
+	},[lines]);
+	useEffect(()=>{
+		socket.emit("join_room", {id:id,lines:lines});
+		socket.on("joined", (data) => {
+			console.log("Other joined ",data);
+            setLines(data);
+        });
+	},[id])
 	useEffect(() => {
-		socket.emit("join_room", id);
 		boardRef.current?.addEventListener("mousemove", (e: MouseEvent) => {
 			socket.emit("cursor_moved", {
 				x: e.x,
 				y: e.y,
 				id: id,
 				userData: userData?.name,
+				lines: lines
 			});
-			setCursor({ x: e.x, y: e.y, id: id, userData: userData?.name });
 		});
-	}, [id, userData?.name]);
+	}, [id, userData?.name,lines]);
 	useEffect(() => {
+		
 		socket.on("other", (data) => {
 			setOther(data);
 		});
-	}, []);
-	useEffect(() => {
-		socket.emit("drawing", lines);
-		setUndoStack(lines);
-	}, [lines]);
+	}, [other]);
+
 	return (
 		<div
 			ref={boardRef}
@@ -141,13 +148,11 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			<div style={{ display: "flex", gap: "100px" }}>
 				<button
 					onClick={handleUndo}
-					// disabled={undoStack.length === 0}
 				>
 					Undo
 				</button>
 				<button
 					onClick={handleRedo}
-					// disabled={redoStack.length === 0}
 				>
 					Redo
 				</button>

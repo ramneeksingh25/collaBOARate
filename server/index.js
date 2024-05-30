@@ -10,19 +10,25 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server,{
     cors:{
-        origin:"*",
+        origin:"http://localhost:5173",
         methods:["GET","POST"]
     }
 });
 
 io.on('connection',(socket)=>{
+    var id = "";
     console.log("User Connected ",socket.id);
     socket.on('join_room',(data)=>{
-        socket.join(data)
-        console.log("joined room ",data);
+        socket.join(data.id)
+        console.log("joined room ",data.id);
+        socket.to(data.id).emit("joined",data.lines)
     })
     socket.on("cursor_moved",(data)=>{
         socket.to(data.id).emit("other",data);
+    })
+    socket.on("draw",(data)=>{
+        console.log("Draw");
+        socket.to(data[0]?data[0].id:id).emit("otherDraw",data);
     })
 })
 
