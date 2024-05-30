@@ -6,6 +6,7 @@ import { userContext } from "../contexts/userContext";
 import { Button, Form } from "react-bootstrap";
 import jsPDF from "jspdf";
 import { KonvaEventObject } from "konva/lib/Node";
+import MessageForm from "./MesssageForm";
 
 const socket = io("http://localhost:2000");
 
@@ -16,7 +17,7 @@ type LineProps = {
 	id: string | undefined,
 };
 type KonvaMouseEvent = KonvaEventObject<MouseEvent>;
-const Canvas = ({ id }: { id: string | undefined }) => {
+const Canvas = ({ id }: { id: string | undefined}) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
 	const stageRef = useRef(null);
@@ -29,6 +30,8 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	const [stageWidth, setStageWidth] = useState<number>(100);
 	const [stageHeight, setStageHeight] = useState<number>(100);
 	const [otherCursor,setOtherCursor] = useState({x:0, y:0,id:id,user:userData?.name,color:color,width:width,visible:false});
+	const [message,setMessage]=useState("");
+	const [newMessage,setNewMessage]=useState({message:"",user:"",id:""});
 
 	//Will run to set board dimesions
 	useEffect(() => {
@@ -62,6 +65,19 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 			setRedoStack([]);
 		})
 	}, [lines,undoStack])
+
+	//messenging
+	useEffect(()=>{
+		const messageObj = {message: message,user:userData?.name,id:id}
+		socket.emit("message",messageObj)
+	},[message,userData?.name,id])
+
+	useEffect(()=>{
+		socket.on("messageRecieve",(data)=>{
+            setNewMessage(data);
+			setTimeout(()=>{setNewMessage({user:"",message:"",id:""})},10000)
+        })
+	},[newMessage])
 
 	const saveAsImage = () => {
 		const uri = stageRef.current?stageRef.current.toDataURL():null;
@@ -166,6 +182,14 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 					justifyContent: "center",
 					gap: "3vw",
 				}}>
+					{newMessage.message!=""&&<div style={{position:"absolute",backgroundColor:"white",padding:"3px",borderRadius:"10px",bottom:0,}} >
+						<span>
+							Message from {newMessage.user} :
+						</span>
+						<span className="fs-5">
+							{newMessage.message}
+						</span>
+					</div>}
 				<Button
 					variant="dark"
 					onClick={handleUndo}>
@@ -204,6 +228,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 					onClick={saveAsPDF}>
 					Save as PDF
 				</Button>
+				<MessageForm setMessage={setMessage}/>
 			</div>
 			<div style={{ position: "fixed" }}></div>
 			<Stage

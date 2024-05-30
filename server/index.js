@@ -28,6 +28,9 @@ io.on("connection", (socket) => {
 	socket.on("drawing", (data) => {
 		socket.to(data[0].id).emit("drawings", data);
 	});
+	socket.on("message",(data)=>{
+		socket.to(data.id).emit("messageRecieve", data);
+	})
 });
 
 server.listen(2000, () => {
