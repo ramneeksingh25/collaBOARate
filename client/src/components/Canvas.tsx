@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Stage, Layer, Line, StageProps } from "react-konva";
+import { Stage, Layer, Line } from "react-konva";
 import { io } from "socket.io-client";
 import OtherCursor from "./OtherCursor";
 import { userContext } from "../contexts/userContext";
@@ -19,7 +19,7 @@ type KonvaMouseEvent = KonvaEventObject<MouseEvent>;
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
-	const stageRef = useRef<StageProps>(null);
+	const stageRef = useRef(null);
 	const [undoStack, setUndoStack] = useState<LineProps[][]>([]);
 	const [redoStack, setRedoStack] = useState<LineProps[][]>([]);
 	const [lines, setLines] = useState<LineProps[]>([]);
@@ -64,7 +64,7 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	}, [lines,undoStack])
 
 	const saveAsImage = () => {
-		const uri = stageRef.current?.toDataURL();
+		const uri = stageRef.current?stageRef.current.toDataURL():null;
 		const link = document.createElement("a");
 		link.download = "whiteboard.png";
 		link.href = uri || "";
@@ -74,15 +74,15 @@ const Canvas = ({ id }: { id: string | undefined }) => {
 	};
 
 	const saveAsPDF = () => {
-		const uri = stageRef.current?.toDataURL();
+		const uri = stageRef.current?stageRef.current.toDataURL():null;
 		const pdf = new jsPDF();
 		pdf.addImage(
 			uri || "",
 			"PNG",
 			0,
 			0,
-			pdf.internal.pageSize.getWidth(),
-			pdf.internal.pageSize.getHeight()
+			stageWidth,
+			stageHeight
 		);
 		pdf.save(`board_${id}.pdf`);
 	};

@@ -26,27 +26,8 @@ io.on("connection", (socket) => {
 		socket.to(data.id).emit("loadLines", data);
 	});
 	socket.on("drawing", (data) => {
-        console.log(data);
 		socket.to(data[0].id).emit("drawings", data);
 	});
-	socket.on("move", (data) => {
-		socket.to(data.id).emit("cursor", data);
-	});
-	socket.on("line", (data) => {
-		socket.to(data.id).emit("lines", data);
-	});
-
-	// socket.on('join_room',(data)=>{
-	//     socket.join(data.id)
-	//     id = data.id
-	//     socket.to(data.id).emit("joined",data.lines)
-	// })
-	// socket.on("cursor_moved",(data)=>{
-	//     socket.to(data.id).emit("other",data);
-	// })
-	// socket.on("draw",(data)=>{
-	//     socket.to(id).emit("otherDraw",data);
-	// })
 });
 
 server.listen(2000, () => {
