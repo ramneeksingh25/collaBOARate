@@ -4,7 +4,7 @@ import Canvas from '../components/Canvas';
 const Board = () => {
   const id = useParams().id
   return (
-    <div className='bg-dark position-fixed h-100 w-100'>
+    <div className='position-fixed h-100 w-100 d-flex flex-column bg-black align-items-center justify-content-center'>
       <Menu id={id}/>
       <Canvas id={id}/>
     </div>

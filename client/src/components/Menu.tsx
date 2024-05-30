@@ -12,7 +12,7 @@ const Menu = ({ id }: { id: string | undefined }) => {
           }, 3000);
       };
     return (
-        <Button variant="dark" className="position-absolute end-0" onClick={()=>{
+        <Button variant="dark" className="position-absolute end-0 bottom-0" onClick={()=>{
             copyToClipboard();
         }}>{copySuccess!=""?"Copied ID!":"Click to copy ID "+id}</Button>
     )
