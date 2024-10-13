@@ -7,17 +7,18 @@ import { Button, Form } from "react-bootstrap";
 import jsPDF from "jspdf";
 import { KonvaEventObject } from "konva/lib/Node";
 import MessageForm from "./MesssageForm";
+import { Link } from "react-router-dom";
 
 const socket = io("http://localhost:2000");
 
 type LineProps = {
-	points: number[],
-	color: string,
-	width: number,
-	id: string | undefined,
+	points: number[];
+	color: string;
+	width: number;
+	id: string | undefined;
 };
 type KonvaMouseEvent = KonvaEventObject<MouseEvent>;
-const Canvas = ({ id }: { id: string | undefined}) => {
+const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
 	const stageRef = useRef(null);
@@ -29,9 +30,21 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 	const isDrawing = useRef(false);
 	const [stageWidth, setStageWidth] = useState<number>(100);
 	const [stageHeight, setStageHeight] = useState<number>(100);
-	const [otherCursor,setOtherCursor] = useState({x:0, y:0,id:id,user:userData?.name,color:color,width:width,visible:false});
-	const [message,setMessage]=useState("");
-	const [newMessage,setNewMessage]=useState({message:"",user:"",id:""});
+	const [otherCursor, setOtherCursor] = useState({
+		x: 0,
+		y: 0,
+		id: id,
+		user: userData?.name,
+		color: color,
+		width: width,
+		visible: false,
+	});
+	const [message, setMessage] = useState("");
+	const [newMessage, setNewMessage] = useState({
+		message: "",
+		user: "",
+		id: "",
+	});
 
 	//Will run to set board dimesions
 	useEffect(() => {
@@ -56,31 +69,33 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 
 	//to show real-time drawing and cursor
 	useEffect(() => {
-		socket.on("drawings",(data)=>{
+		socket.on("drawings", (data) => {
 			setOtherCursor(data[0]);
 			const newLines = data[1];
 			console.log(newLines);
-			setLines([...lines,newLines]);
+			setLines([...lines, newLines]);
 			setUndoStack([...undoStack, [...lines, newLines]]);
 			setRedoStack([]);
-		})
-	}, [lines,undoStack])
+		});
+	}, [lines, undoStack]);
 
 	//messenging
-	useEffect(()=>{
-		const messageObj = {message: message,user:userData?.name,id:id}
-		socket.emit("message",messageObj)
-	},[message,userData?.name,id])
+	useEffect(() => {
+		const messageObj = { message: message, user: userData?.name, id: id };
+		socket.emit("message", messageObj);
+	}, [message, userData?.name, id]);
 
-	useEffect(()=>{
-		socket.on("messageRecieve",(data)=>{
-            setNewMessage(data);
-			setTimeout(()=>{setNewMessage({user:"",message:"",id:""})},10000)
-        })
-	},[newMessage])
+	useEffect(() => {
+		socket.on("messageRecieve", (data) => {
+			setNewMessage(data);
+			setTimeout(() => {
+				setNewMessage({ user: "", message: "", id: "" });
+			}, 10000);
+		});
+	}, [newMessage]);
 
 	const saveAsImage = () => {
-		const uri = stageRef.current?stageRef.current.toDataURL():null;
+		const uri = stageRef.current ? stageRef.current.toDataURL() : null;
 		const link = document.createElement("a");
 		link.download = "whiteboard.png";
 		link.href = uri || "";
@@ -90,16 +105,9 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 	};
 
 	const saveAsPDF = () => {
-		const uri = stageRef.current?stageRef.current.toDataURL():null;
+		const uri = stageRef.current ? stageRef.current.toDataURL() : null;
 		const pdf = new jsPDF();
-		pdf.addImage(
-			uri || "",
-			"PNG",
-			0,
-			0,
-			stageWidth,
-			stageHeight
-		);
+		pdf.addImage(uri || "", "PNG", 0, 0, stageWidth, stageHeight);
 		pdf.save(`board_${id}.pdf`);
 	};
 
@@ -123,18 +131,28 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 				...lastLine,
 				points: lastLine.points.concat([point.x, point.y]),
 			};
-			socket.emit("drawing",[{id:id, x: e.evt.x, y: e.evt.y, user:userData?.name,color:color,width:width,visible:true},newLine])
+			socket.emit("drawing", [
+				{
+					id: id,
+					x: e.evt.x,
+					y: e.evt.y,
+					user: userData?.name,
+					color: color,
+					width: width,
+					visible: true,
+				},
+				newLine,
+			]);
 			setLines(lines.slice(0, -1).concat(newLine));
 			setUndoStack(
 				undoStack.slice(0, -1).concat([lines.slice(0, -1).concat(newLine)])
 			);
 		}
-
 	};
 
 	const handleMouseUp = () => {
 		isDrawing.current = false;
-		setOtherCursor({...otherCursor,visible: false});
+		setOtherCursor({ ...otherCursor, visible: false });
 	};
 
 	const handleUndo = () => {
@@ -171,7 +189,7 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 				height: "93%",
 				width: "98%",
 			}}>
-			{otherCursor.visible&&<OtherCursor cursor={otherCursor} />}
+			{otherCursor.visible && <OtherCursor cursor={otherCursor} />}
 			<div
 				style={{
 					width: "100%",
@@ -182,14 +200,26 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 					justifyContent: "center",
 					gap: "3vw",
 				}}>
-					{newMessage.message!=""&&<div style={{position:"absolute",backgroundColor:"white",padding:"3px",borderRadius:"10px",bottom:0,}} >
-						<span>
-							Message from {newMessage.user} :
-						</span>
-						<span className="fs-5">
-							{newMessage.message}
-						</span>
-					</div>}
+				{newMessage.message != "" && (
+					<div
+						style={{
+							position: "absolute",
+							backgroundColor: "white",
+							padding: "3px",
+							borderRadius: "10px",
+							bottom: 0,
+						}}>
+						<span>Message from {newMessage.user} :</span>
+						<span className="fs-5">{newMessage.message}</span>
+					</div>
+				)}
+				<Link to="/">
+					<Button
+						variant="dark"
+						>
+						Home
+					</Button>
+				</Link>
 				<Button
 					variant="dark"
 					onClick={handleUndo}>
@@ -214,7 +244,7 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 				/>
 				<Form.Range
 					onChange={(e) => {
-						setWidth(parseInt(e.target.value));
+						setWidth(parseInt(e.target.value)/10);
 					}}
 					style={{ width: "100px", color: "black" }}
 				/>
@@ -228,7 +258,7 @@ const Canvas = ({ id }: { id: string | undefined}) => {
 					onClick={saveAsPDF}>
 					Save as PDF
 				</Button>
-				<MessageForm setMessage={setMessage}/>
+				<MessageForm setMessage={setMessage} />
 			</div>
 			<div style={{ position: "fixed" }}></div>
 			<Stage
