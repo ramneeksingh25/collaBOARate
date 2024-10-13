@@ -1,20 +1,10 @@
 import { Container } from "react-bootstrap";
 import SessionCard from "../components/SessionCard";
 import NavBar from "../components/NavBar";
-import { KeycloakTokenParsed } from "keycloak-js";
-
-interface ProtectedProps {
-	user: KeycloakTokenParsed|undefined;
-	logout: () => void;
-  }
-
-const Protected = ({user,logout}:ProtectedProps) => {  
+const Protected = () => {  
 	return (
 		<>
-			<NavBar
-				user={user}
-				logout={logout}
-			/>
+			<NavBar/>
 				<Container
 					// fluid
 					className="d-flex justify-content-center align-items-center"
