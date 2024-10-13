@@ -1,46 +1,48 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Container, Navbar } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import { TypeAnimation } from "react-type-animation";
 
 const Public = () => {
 	const { loginWithRedirect, user } = useAuth0();
 	return (
 		<>
 			<Navbar
-          style={{height:"9vh",position:"absolute",width:"100%",padding:"6vh"}}
-          >
-				<Container>
-					<Navbar.Brand
-						href="/"
-						className=" fw-bolder fs-2 px-3 border border-dark border-3 rounded-5 bg-white"
-            >
-						<img
-							src="./public/logo.png"
-							width={70}
-              />{" "}
-						collaBOARate
-					</Navbar.Brand>
-					<Navbar.Collapse className="justify-content-end">
-						<Navbar.Text>
-							<span className="text-decoration-underline">{user?.email}</span>
-						</Navbar.Text>
-						<Button
-							variant="dark"
-							onClick={() => loginWithRedirect({})}>
-							Sign In
-						</Button>
-					</Navbar.Collapse>
-				</Container>
+				style={{
+					height: "9vh",
+					position: "absolute",
+					width: "100%",
+					padding: "10vh 2vh",
+				}}>
+				<Navbar.Brand
+					href="/"
+					className=" fw-bolder fs-2 px-3 border border-dark border-3 rounded-5 bg-white">
+					<img
+						src="./logo.png"
+						width={70}
+					/>{" "}
+					collaBOARate
+				</Navbar.Brand>
 			</Navbar>
 			<div
 				className="d-flex justify-content-between align-items-center"
-				style={{ height: "100vh"}}>
+				style={{ height: "100vh" }}>
 				<div
-					style={{ height: "60%", width: "40%",paddingLeft:"2vh",}}
+					style={{ height: "60%", width: "40%", paddingLeft: "2vh" }}
 					className="d-flex flex-column justify-content-around align-items-center">
 					<div className="d-flex flex-column justify-content-around">
-						<span>
-							<h1>Connect and Create</h1>
+						<span>	
+							<h1>
+								<TypeAnimation
+									sequence={[
+										"Connect, Collaborate and Create"
+									]}
+									wrapper="h1"
+									speed={50}
+									style={{ display: "inline-block" }}
+									repeat={Infinity}
+								/>
+							</h1>
 							<p>
 								collaBOARate is a real-time collaborative whiteboard platform
 								designed to enhance teamwork. Create, share, and innovate
@@ -54,7 +56,7 @@ const Public = () => {
 							Get Started
 						</Button>
 					</div>
-					<div>
+					<div style={{ position: "absolute", bottom: "0" }}>
 						Made with &#128420; by{" "}
 						<a
 							className="text-dark"
