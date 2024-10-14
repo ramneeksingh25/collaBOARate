@@ -9,8 +9,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import MessageForm from "./MesssageForm";
 import { Link } from "react-router-dom";
 
-const socket = io("https://collaboarate-server.vercel.app/");
-
+const socket = io("https://collaboarate-server.onrender.com");
 
 type LineProps = {
 	points: number[];
