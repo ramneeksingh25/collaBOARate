@@ -8,6 +8,7 @@ import jsPDF from "jspdf";
 import { KonvaEventObject } from "konva/lib/Node";
 import MessageForm from "./MesssageForm";
 import { Link } from "react-router-dom";
+import Konva from "konva";
 
 const socket = io("https://collaboarate-server.onrender.com");
 
@@ -21,7 +22,7 @@ type KonvaMouseEvent = KonvaEventObject<MouseEvent>;
 const Canvas = ({ id }: { id: string | undefined }) => {
 	const userData = useContext(userContext);
 	const boardRef = useRef<HTMLDivElement>(null);
-	const stageRef = useRef(null);
+	const stageRef = useRef<Konva.Stage>(null);
 	const [undoStack, setUndoStack] = useState<LineProps[][]>([]);
 	const [redoStack, setRedoStack] = useState<LineProps[][]>([]);
 	const [lines, setLines] = useState<LineProps[]>([]);
