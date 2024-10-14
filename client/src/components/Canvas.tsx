@@ -9,7 +9,9 @@ import { KonvaEventObject } from "konva/lib/Node";
 import MessageForm from "./MesssageForm";
 import { Link } from "react-router-dom";
 
-const socket = io("http://localhost:2000");
+const socket = io(import.meta.env.VITE_SERVER_URL);
+console.log(import.meta.env.VITE_SERVER_URL);
+
 
 type LineProps = {
 	points: number[];
