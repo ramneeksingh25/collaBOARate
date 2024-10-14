@@ -1,4 +1,3 @@
-import { div } from "react-bootstrap";
 import SessionCard from "../components/SessionCard";
 import NavBar from "../components/NavBar";
 const Protected = () => {
@@ -6,7 +5,6 @@ const Protected = () => {
 		<>
 			<NavBar />
 			<div
-				fluid
 				className="d-flex justify-content-between align-items-center"
 				style={{ height: "90vh", backgroundColor: "" }}>
 					<div

@@ -10,7 +10,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
-		origin: "http://localhost:5173",
+		origin: "*",
 		methods: ["GET", "POST"],
 	},
     maxHttpBufferSize: 1e8
@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
 
 
 app.get("/ping", (req, res) => {
-    res.send("pong");
+    res.send("pongo");
 });
 
 server.listen(2000, () => {
