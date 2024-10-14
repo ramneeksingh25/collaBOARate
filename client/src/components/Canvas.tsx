@@ -9,8 +9,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import MessageForm from "./MesssageForm";
 import { Link } from "react-router-dom";
 
-const socket = io(import.meta.env.VITE_SERVER_URL);
-console.log(import.meta.env.VITE_SERVER_URL);
+const socket = io("https://collaboarate-server.vercel.app/");
 
 
 type LineProps = {
