@@ -1,10 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Container, Navbar } from "react-bootstrap";
+import { Navbar } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { TypeAnimation } from "react-type-animation";
 
 const Public = () => {
-	const { loginWithRedirect, user } = useAuth0();
+	const { loginWithRedirect } = useAuth0();
 	return (
 		<>
 			<Navbar
@@ -31,15 +31,23 @@ const Public = () => {
 					style={{ height: "60%", width: "40%", paddingLeft: "2vh" }}
 					className="d-flex flex-column justify-content-around align-items-center">
 					<div className="d-flex flex-column justify-content-around">
-						<span>	
+						<span>
 							<h1>
 								<TypeAnimation
 									sequence={[
-										"Connect, Collaborate and Create"
+										"Connect",
+										500,
+										"Connect,Collaborate", //  Continuing previous Text
+										500,
+										"Connect,Collaborate and Create",
+										500,
+										"Connect,Collaborate",
+										500,
+										"Connect",
+										500,
+										"",
+										500,
 									]}
-									wrapper="h1"
-									speed={50}
-									style={{ display: "inline-block" }}
 									repeat={Infinity}
 								/>
 							</h1>
