@@ -33,6 +33,11 @@ io.on("connection", (socket) => {
 	})
 });
 
+
+app.get("/ping", (req, res) => {
+    res.send("pong");
+});
+
 server.listen(2000, () => {
 	console.log("Server listening on ", 2000);
 });

@@ -24,13 +24,13 @@ const SessionCard= ({func}:{func:string}) => {
     }
   }
   return (
-    <Row className="justify-content-center align-items-center p-5">
-        <Col className="bg-dark-subtle p-5 rounded-4 border border-dark border-3" >
+    <Row className="justify-content-center align-items-center px-3 py-3">
+        <Col className="bg-dark text-light p-5 rounded-4 border border-dark border-3" >
           <Form className='d-flex flex-column align-items-center'>
-            <h2 className=" fw-bold mb-3 text-decoration-underline">{func} Session</h2>
+            <h2 className=" fw-bold mb-3">{func} Session</h2>
             <Form.Group controlId="JoinRoom" className="d-flex flex-column gap-0 m-3">
-              {func=="Join"&&<Form.Control type="text" placeholder="Enter Room ID" className="border border-dark border-3 rounded-bottom-0 rounded-top-4" onChange={(e)=>{setID(e.target.value)}}/>}
-              <Button variant="dark" className={func=='Join'?'rounded-top-0 rounded-bottom-4':'p-3 m-3'} onClick={func=="Join"?joinRoom:createRoom}>
+              {func=="Join"&&<Form.Control type="text" placeholder="Enter Room ID" className="border border-secondary border-3 rounded-bottom-0 rounded-top-4" onChange={(e)=>{setID(e.target.value)}}/>}
+              <Button variant="secondary" className={func=='Join'?'rounded-top-0 rounded-bottom-4':'p-3 m-3'} onClick={func=="Join"?joinRoom:createRoom}>
                 {func} Room
               </Button>
             </Form.Group>
